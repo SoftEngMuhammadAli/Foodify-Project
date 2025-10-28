@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title><%= subject || title || "Notification" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      /* Basic responsive email styles */
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f4f6f8;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial;
+        color: #333;
+      }
+      a {
+        color: #1a73e8;
+        text-decoration: none;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .card {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+      .logo {
+        text-align: center;
+        padding: 16px 0;
+      }
+      .preheader {
+        display: none !important;
+        visibility: hidden;
+        opacity: 0;
+        color: transparent;
+        height: 0;
+        width: 0;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 20px;
+        border-radius: 6px;
+        background: #1a73e8;
+        color: #fff;
+        font-weight: 600;
+      }
+      .muted {
+        color: #6b7280;
+        font-size: 13px;
+      }
+      .divider {
+        height: 1px;
+        background: #e6e9ee;
+        margin: 20px 0;
+      }
+      table.items {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+      }
+      table.items th,
+      table.items td {
+        padding: 8px 6px;
+        text-align: left;
+        border-bottom: 1px solid #f1f3f5;
+        font-size: 14px;
+      }
+      .total-row td {
+        font-weight: 700;
+      }
+      @media (max-width: 480px) {
+        .card {
+          padding: 18px;
+        }
+        .btn {
+          width: 100%;
+          text-align: center;
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Preheader (preview text shown in some inboxes) -->
+    <span class="preheader"
+      ><%= preheader || (subject || title || '').replace(/(<([^>]+)>)/ig,
+      "").slice(0,120) %></span
+    >
+
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+      <tr>
+        <td align="center" style="padding: 24px 16px">
+          <table
+            class="container"
+            cellpadding="0"
+            cellspacing="0"
+            role="presentation"
+          >
+            <tr>
+              <td class="card">
+                <!-- Logo -->
+                <div class="logo">
+                  <% if (logoUrl) { %>
+                  <a
+                    href="<%= companyUrl || '#' %>"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <img
+                      src="<%= logoUrl %>"
+                      alt="<%= companyName || '' %>"
+                      style="max-height: 48px"
+                    />
+                  </a>
+                  <% } else if (companyName) { %>
+                  <strong style="font-size: 18px"><%= companyName %></strong>
+                  <% } %>
+                </div>
+
+                <!-- Greeting / Title -->
+                <h2
+                  style="margin: 8px 0 12px 0; font-size: 20px; color: #111827"
+                >
+                  <%= title || "You've got mail" %>
+                </h2>
+
+                <!-- Intro / Body -->
+                <p class="muted" style="margin: 0 0 16px 0">
+                  <% if (userName) { %>Hi <%= userName %>,<% } %>
+                </p>
+
+                <!-- messageHtml takes precedence if provided and is rendered as HTML.
+                                     Ensure server-side sanitization if messageHtml contains user input. -->
+                <% if (messageHtml) { %>
+                <div
+                  style="margin-bottom: 16px; color: #111827; line-height: 1.5"
+                >
+                  <%- messageHtml %>
+                </div>
+                <% } else if (message) { %>
+                <p style="margin: 0 0 16px 0; color: #111827; line-height: 1.5">
+                  <%= message %>
+                </p>
+                <% } %>
+
+                <!-- Action button -->
+                <% if (actionUrl && actionText) { %>
+                <p style="margin: 0 0 18px 0">
+                  <a
+                    href="<%= actionUrl %>"
+                    target="_blank"
+                    class="btn"
+                    rel="noopener"
+                    ><%= actionText %></a
+                  >
+                </p>
+                <% } %>
+
+                <!-- Optional items / order summary -->
+                <% if (items && items.length) { %>
+                <div style="margin-top: 12px">
+                  <table class="items" role="presentation">
+                    <thead>
+                      <tr>
+                        <th style="font-weight: 600">Item</th>
+                        <th style="font-weight: 600; text-align: center">
+                          Qty
+                        </th>
+                        <th style="font-weight: 600; text-align: right">
+                          Price
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% items.forEach(function(it){ %>
+                      <tr>
+                        <td><%= it.name %></td>
+                        <td style="text-align: center"><%= it.qty %></td>
+                        <td style="text-align: right"><%= it.price %></td>
+                      </tr>
+                      <% }); %> <% if (subtotal) { %>
+                      <tr class="total-row">
+                        <td></td>
+                        <td style="text-align: center">Subtotal</td>
+                        <td style="text-align: right"><%= subtotal %></td>
+                      </tr>
+                      <% } %> <% if (tax) { %>
+                      <tr>
+                        <td></td>
+                        <td style="text-align: center">Tax</td>
+                        <td style="text-align: right"><%= tax %></td>
+                      </tr>
+                      <% } %> <% if (total) { %>
+                      <tr class="total-row">
+                        <td></td>
+                        <td style="text-align: center">Total</td>
+                        <td style="text-align: right"><%= total %></td>
+                      </tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+                <% } %>
+
+                <div class="divider"></div>
+
+                <!-- Footer / contact -->
+                <p class="muted" style="margin: 0 0 8px 0; font-size: 13px">
+                  <%= footerMessage || "If you didn't expect this email, you can
+                  ignore it." %>
+                </p>
+
+                <p class="muted" style="margin: 4px 0 0 0; font-size: 13px">
+                  <%= companyName || '' %> <% if (companyAddress) { %> •
+                  <span><%= companyAddress %></span><% } %>
+                </p>
+
+                <% if (unsubscribeUrl) { %>
+                <p style="margin: 12px 0 0 0; font-size: 12px; color: #9ca3af">
+                  <a href="<%= unsubscribeUrl %>" style="color: #9ca3af"
+                    >Unsubscribe</a
+                  >
+                </p>
+                <% } %>
+              </td>
+            </tr>
+            <!-- Optional small footer -->
+            <tr>
+              <td
+                style="
+                  text-align: center;
+                  padding: 12px 0;
+                  color: #9ca3af;
+                  font-size: 12px;
+                "
+              >
+                <%= smallPrint || "&copy; " + (new Date().getFullYear()) + " " +
+                (companyName || "") %>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
