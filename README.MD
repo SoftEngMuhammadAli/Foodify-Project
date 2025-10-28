@@ -222,7 +222,7 @@ _Add screenshots of your Foodify app here once built._
 
 ## 👨‍💻 Author
 
-**Faisal Ijaz**
+**Muhammad Ali**
 Full Stack Developer | Flutter + Node.js | AWS Certified
 🔗 [LinkedIn](#) • [GitHub](#) • [Fiverr](#)
 
